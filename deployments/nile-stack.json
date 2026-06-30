@@ -1,0 +1,25 @@
+{
+  "network": "nile",
+  "wunit": "TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+  "usdt": "TYaFt63TKav9BNJm4guuM2rr42mi1eKpTr",
+  "pool": "TVwWSJuSseChP6Vm31zEk1CFPkeyNgzQp6",
+  "router": "TRRNGYBpyxRMBGwsmkgR8BknrKFtQ29g7H",
+  "amplification": 200,
+  "swapFeeBps": 4,
+  "poolReserves": {
+    "wunit": "510000",
+    "usdt": "490004"
+  },
+  "demoSwap": {
+    "in": "10000 wUNIT",
+    "quotedOut": 9995.005079,
+    "received": 9995.005079,
+    "tx": "e64b9e2f4d5f8514d49efe88e84b6d75ef62430e9ff149838f0b4e17011e8079"
+  },
+  "explorer": {
+    "pool": "https://nile.tronscan.org/#/contract/TVwWSJuSseChP6Vm31zEk1CFPkeyNgzQp6",
+    "usdt": "https://nile.tronscan.org/#/token20/TYaFt63TKav9BNJm4guuM2rr42mi1eKpTr",
+    "router": "https://nile.tronscan.org/#/contract/TRRNGYBpyxRMBGwsmkgR8BknrKFtQ29g7H",
+    "swapTx": "https://nile.tronscan.org/#/transaction/e64b9e2f4d5f8514d49efe88e84b6d75ef62430e9ff149838f0b4e17011e8079"
+  }
+}

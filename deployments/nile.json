@@ -1,0 +1,29 @@
+{
+  "network": "nile",
+  "fullHost": "https://nile.trongrid.io",
+  "deployer": "THE9LQEoQeHmTbE46ys79mHNaAxRbrcipi",
+  "wunit": {
+    "base58": "TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+    "hex": "41e8b3bf4618ee703c666d3843f14ba70a5d19ea23"
+  },
+  "name": "Wrapped UNIT",
+  "symbol": "wUNIT",
+  "decimals": 6,
+  "demoMint": {
+    "to": "THE9LQEoQeHmTbE46ys79mHNaAxRbrcipi",
+    "amount": "1000000000000",
+    "tx": "6c4f383f29b20b696c3f9a3f121bded97b0d6542e8e68b75598d041f62d34c44"
+  },
+  "demoTransfer": {
+    "to": "TH7BJexjF4UqG6PKQYXZp5kTUhUTrYi7YP",
+    "amount": "250000000000",
+    "tx": "82ca510b20b9f07d3a71a5c407be975ecf7bd856b1bd9c802043daef9943450c"
+  },
+  "secondAddress": "TH7BJexjF4UqG6PKQYXZp5kTUhUTrYi7YP",
+  "explorer": {
+    "contract": "https://nile.tronscan.org/#/contract/TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+    "token": "https://nile.tronscan.org/#/token20/TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+    "mintTx": "https://nile.tronscan.org/#/transaction/6c4f383f29b20b696c3f9a3f121bded97b0d6542e8e68b75598d041f62d34c44",
+    "transferTx": "https://nile.tronscan.org/#/transaction/82ca510b20b9f07d3a71a5c407be975ecf7bd856b1bd9c802043daef9943450c"
+  }
+}

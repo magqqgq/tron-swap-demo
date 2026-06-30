@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ducat Swap · wUNIT ⇄ USDT on Tron</title>
+<style>
+  @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+  @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+  @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+  :root{--bg:#111015;--surface:#1D1C21;--line:#28272C;--line2:#47464A;--txt:#DDDDDD;--dim:#8E8D90;--faint:#5E5D62;--blue:#1858E4;--blueText:#5B8DEF;--red:#E06A5A;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'Cabinet Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  .tnum{font-variant-numeric:tabular-nums;}
+  .page{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+  .glow{position:absolute;top:-260px;left:50%;transform:translateX(-50%);width:760px;height:520px;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(24,88,228,.22),transparent 70%);filter:blur(10px);animation:glow 10s ease-in-out infinite;}
+  @keyframes glow{0%,100%{opacity:.45;}50%{opacity:.85;}}
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 34px;border-bottom:1px solid var(--surface);position:relative;z-index:2;}
+  .hleft{display:flex;align-items:center;gap:44px;}
+  .wordmark{height:17px;filter:invert(1);opacity:.92;}
+  .nav{font-size:15px;font-weight:700;color:var(--txt);}
+  .hright{display:flex;align-items:center;gap:12px;}
+  .netpill{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--surface);border:1px solid var(--line);border-radius:11px;font-size:14px;font-weight:600;}
+  .netdot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px rgba(24,88,228,.9);}
+  .connect{padding:10px 18px;border-radius:11px;background:var(--surface);border:1px solid var(--line);color:var(--txt);font-size:14px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:inherit;}
+  .connect:hover{border-color:var(--line2);}
+  .demobadge{font-size:12px;font-weight:600;color:var(--yellow);background:rgba(255,199,0,.1);border:1px solid rgba(255,199,0,.3);border-radius:999px;padding:4px 10px;}
+  main{flex:1;display:flex;justify-content:center;padding:60px 20px 80px;position:relative;z-index:2;}
+  .col{width:100%;max-width:452px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 40px 80px -30px rgba(0,0,0,.7);}
+  .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .card-h .title{font-size:20px;font-weight:700;letter-spacing:-.01em;}
+  .icons{display:flex;gap:8px;}
+  .iconbtn{width:34px;height:34px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--dim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;}
+  .iconbtn:hover{color:var(--txt);}
+  .panel{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:17px 18px 15px;position:relative;}
+  .panel .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .panel .lbl{font-size:14px;font-weight:600;color:var(--dim);}
+  .panel .balwrap{display:flex;align-items:center;gap:8px;}
+  .bal{font-size:13px;color:var(--dim);white-space:nowrap;}
+  .max{font-size:11px;font-weight:700;color:var(--blueText);border:1px solid rgba(24,88,228,.4);border-radius:7px;padding:2px 7px;cursor:pointer;background:transparent;font-family:inherit;}
+  .row2{display:flex;align-items:center;gap:10px;}
+  .amt{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--txt);font-size:36px;font-weight:500;letter-spacing:-.01em;font-family:inherit;}
+  .amt::placeholder{color:#47464A;}
+  .recv{flex:1;min-width:0;color:var(--txt);font-size:36px;font-weight:500;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tokpill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 8px;cursor:pointer;font-family:inherit;color:var(--txt);}
+  .tokicon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+  .toksym{font-size:15px;font-weight:700;}
+  .chev{color:var(--dim);}
+  .usd{margin-top:8px;font-size:14px;color:var(--faint);}
+  .flipwrap{display:flex;justify-content:center;height:0;}
+  .flip{width:40px;height:40px;border-radius:13px;background:var(--line);border:4px solid var(--surface);color:var(--blueText);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:-20px;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:transform .45s cubic-bezier(.5,1.4,.5,1);font-family:inherit;}
+  .receive-panel{margin-top:6px;}
+  .raterow{margin-top:14px;padding:13px 16px;border-radius:14px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .raterow .l{display:flex;align-items:center;gap:8px;font-size:14px;}
+  .bdot{width:6px;height:6px;border-radius:50%;background:var(--blue);}
+  .details{margin-top:8px;padding:14px 16px;border-radius:14px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:11px;}
+  .drow{display:flex;align-items:center;justify-content:space-between;font-size:14px;}
+  .drow .k{color:var(--dim);} .drow .v{color:var(--txt);}
+  .divider{height:1px;background:var(--line);margin:1px 0;}
+  .cta{width:100%;height:56px;border-radius:16px;background:var(--blue);color:#fff;font-size:16px;font-weight:700;border:0;cursor:pointer;margin-top:16px;box-shadow:0 12px 30px -12px rgba(24,88,228,.65);font-family:inherit;transition:filter .15s,transform .1s;}
+  .cta:hover{filter:brightness(1.1);} .cta:active{transform:scale(.99);} .cta:disabled{opacity:.55;cursor:default;box-shadow:none;}
+  .success{text-align:center;color:var(--blueText);font-size:14px;margin-top:12px;min-height:18px;}
+  .trust{text-align:center;font-size:12px;color:var(--faint);margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .popover{position:absolute;top:46px;right:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;z-index:5;box-shadow:0 20px 40px -16px rgba(0,0,0,.7);animation:rise .2s ease-out;}
+  .seg{display:flex;gap:6px;}
+  .seg button{padding:8px 12px;border-radius:9px;background:var(--bg);border:1px solid var(--line);color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .seg button.on{background:rgba(24,88,228,.16);border-color:rgba(24,88,228,.55);color:var(--blueText);}
+  .modal{position:fixed;inset:0;background:rgba(8,8,11,.74);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:flex-start;padding-top:14vh;z-index:20;}
+  .modal.open{display:flex;animation:fade .2s ease-out;}
+  .mpanel{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 50px 90px -30px rgba(0,0,0,.85);animation:rise .25s ease-out;}
+  .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .mhead .t{font-size:18px;font-weight:700;}
+  .search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px;}
+  .search input{flex:1;background:transparent;border:0;outline:none;color:var(--txt);font-family:inherit;font-size:14px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .chip{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--line);cursor:pointer;font-size:13px;font-weight:600;}
+  .mlist{max-height:300px;overflow:auto;}
+  .mrow{display:flex;align-items:center;justify-content:space-between;padding:10px 8px;border-radius:10px;cursor:pointer;}
+  .mrow:hover{background:var(--bg);}
+  .mrow .ml{display:flex;align-items:center;gap:10px;}
+  .mrow .nm{font-size:13px;color:var(--dim);}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+  .impact-ok{color:var(--dim);} .impact-bad{color:var(--red);}
+  .swapstatus{margin-top:14px;padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:var(--bg);font-size:14px;}
+  .swapstatus.ok{border-color:rgba(89,170,138,.45);background:rgba(89,170,138,.08);}
+  .swapstatus.err{border-color:rgba(208,76,104,.45);background:rgba(208,76,104,.08);}
+  .swapstatus .head{font-weight:600;display:flex;align-items:center;font-size:15px;}
+  .swapstatus .sub{color:var(--dim);font-size:13px;margin-top:5px;}
+  .swapstatus a{color:var(--blueText);text-decoration:none;}
+  .spinner{width:15px;height:15px;border:2px solid var(--line2);border-top-color:var(--blueText);border-radius:50%;display:inline-block;animation:spin .8s linear infinite;margin-right:9px;flex:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .steps4{display:flex;gap:6px;margin-top:11px;}
+  .steps4 .s{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .3s;}
+  .steps4 .s.on{background:var(--blue);} .steps4 .s.done{background:var(--green);}
+  .statusbtn{margin-top:10px;font-size:13px;font-weight:600;color:var(--blueText);background:transparent;border:0;cursor:pointer;padding:0;font-family:inherit;}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow"></div>
+  <header>
+    <div class="hleft">
+      <img class="wordmark" src="assets/ducat-wordmark.png" alt="Ducat" />
+      <span class="nav">Swap</span>
+      <span class="demobadge">Nile testnet · demo</span>
+    </div>
+    <div class="hright">
+      <span class="netpill"><span class="netdot"></span>Tron</span>
+      <button class="connect" id="connect">Connect Wallet</button>
+    </div>
+  </header>
+
+  <main><div class="col">
+    <div class="card">
+      <div class="card-h">
+        <span class="title">Swap</span>
+        <div class="icons" style="position:relative">
+          <button class="iconbtn" id="settingsBtn" title="Slippage">⇄</button>
+          <button class="iconbtn" id="refreshBtn" title="Refresh quote">↻</button>
+          <div class="popover" id="settingsPop" style="display:none">
+            <div class="seg" id="slipSeg">
+              <button data-v="0.1">0.1%</button><button data-v="0.5" class="on">0.5%</button><button data-v="1.0">1.0%</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- You pay -->
+      <div class="panel">
+        <div class="top">
+          <span class="lbl">You pay</span>
+          <span class="balwrap"><span class="bal" id="balIn">Bal 0</span><button class="max" id="maxBtn">MAX</button></span>
+        </div>
+        <div class="row2">
+          <input class="amt tnum" id="payInput" inputmode="decimal" placeholder="0.0" value="25" />
+          <button class="tokpill" id="pillIn"><span class="tokicon" id="iconIn">U</span><span class="toksym" id="symIn">wUNIT</span><span class="chev">▾</span></button>
+        </div>
+        <div class="usd tnum" id="usdIn">$0.00</div>
+      </div>
+
+      <div class="flipwrap"><button class="flip" id="flip">↓</button></div>
+
+      <!-- You receive -->
+      <div class="panel receive-panel">
+        <div class="top">
+          <span class="lbl">You receive</span>
+          <span class="bal" id="balOut">Bal 0</span>
+        </div>
+        <div class="row2">
+          <div class="recv tnum" id="receiveOut">0</div>
+          <button class="tokpill" id="pillOut"><span class="tokicon" id="iconOut">T</span><span class="toksym" id="symOut">USDT</span><span class="chev">▾</span></button>
+        </div>
+        <div class="usd tnum" id="usdOut">$0.00</div>
+      </div>
+
+      <!-- Rate / details -->
+      <div class="raterow" id="rateRow">
+        <span class="l"><span class="bdot"></span><span class="tnum" id="rateText">1 wUNIT = 1 USDT</span></span>
+        <span class="chev" id="detChev">▾</span>
+      </div>
+      <div class="details" id="details">
+        <div class="drow"><span class="k">Price impact</span><span class="v tnum" id="impactVal">—</span></div>
+        <div class="drow"><span class="k">Max slippage</span><span class="v tnum" id="slipVal">0.5%</span></div>
+        <div class="drow"><span class="k">Protocol fee</span><span class="v tnum" id="feeVal">0.04%</span></div>
+        <div class="divider"></div>
+        <div class="drow"><span class="k" style="color:var(--txt);font-weight:600">Min. received</span><span class="v tnum" id="minVal" style="font-weight:700">—</span></div>
+      </div>
+
+      <button class="cta" id="cta">Connect Wallet</button>
+      <div class="swapstatus" id="swapStatus" style="display:none"></div>
+      <div class="trust">Tron Nile testnet demo · tokens have no real value</div>
+    </div>
+
+    <div class="card" style="margin-top:18px;padding:18px 20px">
+      <div class="card-h" style="margin-bottom:10px">
+        <span class="title" style="font-size:15px">Price impact across pool depth</span>
+        <span class="bal tnum" id="curveLbl"></span>
+      </div>
+      <svg id="chart" viewBox="0 0 560 210" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
+      <input type="range" min="0" max="100" value="2" id="sizeSlider" style="width:100%;accent-color:var(--blue);margin-top:8px" />
+      <div style="font-size:12px;color:var(--faint);margin-top:6px">Drag to size a trade. Liquidity is concentrated near the 1:1 peg, so impact stays flat through the middle and rises sharply as the pool is pushed to one side.</div>
+    </div>
+  </div></main>
+</div>
+
+<!-- Token modal -->
+<div class="modal" id="modal">
+  <div class="mpanel">
+    <div class="mhead"><span class="t">Select a token</span><button class="iconbtn" id="modalClose">✕</button></div>
+    <div class="search">🔍<input id="search" placeholder="Search name or symbol" /></div>
+    <div class="chips" id="chips"></div>
+    <div class="divider" style="margin:8px 0 10px"></div>
+    <div class="mlist" id="mlist"></div>
+  </div>
+</div>
+
+<script type="module">
+const FULLHOST='https://nile.trongrid.io', EXPLORER='https://nile.tronscan.org/#';
+const POOL='TBVs8gzjVdgJEeWDshixiMFwtpPNeDvLZu';
+const ADDR={wUNIT:'TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB',USDT:'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf'};
+const TOKENS={ wUNIT:{sym:'wUNIT',name:'Wrapped UNIT',color:'#1858E4',letter:'U',idx:0,addr:ADDR.wUNIT},
+               USDT:{sym:'USDT',name:'Tether (TRC-20)',color:'#26A17B',letter:'T',idx:1,addr:ADDR.USDT} };
+// Explicit ABIs for the write path, so swaps work even on unverified contracts.
+const ERC20_ABI=[{constant:false,inputs:[{name:'spender',type:'address'},{name:'amount',type:'uint256'}],name:'approve',outputs:[{name:'',type:'bool'}],stateMutability:'nonpayable',type:'function'}];
+const POOL_ABI=[{inputs:[{name:'tokenIn',type:'uint8'},{name:'amountIn',type:'uint256'},{name:'minAmountOut',type:'uint256'},{name:'receiver',type:'address'}],name:'swap',outputs:[{name:'',type:'uint256'}],stateMutability:'nonpayable',type:'function'}];
+// --- StableSwap math (mirrors UnitUsdcStablePool.sol) ---
+const PREC=10n**12n,A=200n,ANN=A*2n,NC=2n,FEE=4n;
+const w1=(a,b)=>a>b?a-b<=1n:b-a<=1n;
+function getD(x0,x1){let s=x0+x1;if(s===0n)return 0n;let d=s;for(let i=0;i<255;i++){let dP=d;dP=dP*d/(x0*NC);dP=dP*d/(x1*NC);let p=d;d=((ANN*s+dP*NC)*d)/(((ANN-1n)*d)+((NC+1n)*dP));if(w1(p,d))return d;}return d;}
+function getY(tin,tout,x,x0,x1){const xp=[x0,x1];const d=getD(x0,x1);let c=d,s=0n;for(let i=0;i<2;i++){let cx;if(i===tin)cx=x;else if(i===tout)continue;else cx=xp[i];s+=cx;c=c*d/(cx*NC);}c=c*d/(ANN*NC);let b=s+d/ANN;let y=d;for(let i=0;i<255;i++){let p=y;y=((y*y)+c)/((2n*y)+b-d);if(w1(p,y))return y;}return y;}
+function quoteRaw(inRaw,tin,r0,r1){if(inRaw<=0n||r0<=0n||r1<=0n)return 0n;const tout=tin===0?1:0;const x0=r0*PREC,x1=r1*PREC,xp=[x0,x1];const x=xp[tin]+inRaw*PREC;const y=getY(tin,tout,x,x0,x1);let dy=xp[tout]-y-1n;let o=dy/PREC;return o-(o*FEE/10000n);}
+
+// --- read helpers (no TronWeb) ---
+const B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function b58hex20(a){let n=0n;for(const c of a){const i=B58.indexOf(c);if(i<0)throw 0;n=n*58n+BigInt(i);}let h=n.toString(16);if(h.length%2)h='0'+h;return h.padStart(50,'0').slice(2,42);}
+async function rpcConst(contract,sel,param=''){const r=await fetch(FULLHOST+'/wallet/triggerconstantcontract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({owner_address:contract,contract_address:contract,function_selector:sel,parameter:param,visible:true})});const j=await r.json();return j.constant_result?.[0]||'';}
+async function poolReserves(){const res=await rpcConst(POOL,'getBalances()');return [BigInt('0x'+res.slice(0,64)),BigInt('0x'+res.slice(64,128))];}
+async function trc20(token,owner){const res=await rpcConst(token,'balanceOf(address)',b58hex20(owner).padStart(64,'0'));return BigInt('0x'+(res||'0'));}
+const f6=raw=>(Number(raw)/1e6).toFixed(2); // plain 2dp (amounts / input fills)
+const fmtD=raw=>(Number(raw)/1e6).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); // grouped 2dp (balances / displays)
+const f2=raw=>{const v=Number(raw)/1e6;return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+const $=id=>document.getElementById(id);
+
+// --- state ---
+let tokenIn='wUNIT', tokenOut='USDT', slippage=0.5, detailsOpen=true, account=null, tron=null;
+let r0=0n,r1=0n, flipDeg=0, balances={};
+const onNile=tw=>/nile/i.test((tw&&tw.fullNode&&tw.fullNode.host)||'');
+const idxOf=s=>TOKENS[s].idx;
+
+function applyTokens(){ const ti=TOKENS[tokenIn],to=TOKENS[tokenOut];
+  $('iconIn').textContent=ti.letter; $('iconIn').style.background=ti.color; $('symIn').textContent=ti.sym;
+  $('iconOut').textContent=to.letter; $('iconOut').style.background=to.color; $('symOut').textContent=to.sym; }
+
+function curReserves(){ // r0=wUNIT, r1=USDT ; map to in/out reserves
+  return tokenIn==='wUNIT' ? [r0,r1] : [r1,r0]; }
+
+function render(){
+  const ti=TOKENS[tokenIn], to=TOKENS[tokenOut];
+  const amt=parseFloat(($('payInput').value||'0').replace(/,/g,''));
+  const inRaw=BigInt(Math.round((isFinite(amt)?amt:0)*1e6));
+  const tin=idxOf(tokenIn);
+  const out=quoteRaw(inRaw,tin,r0,r1);
+  $('receiveOut').textContent=out>0n?fmtD(out):'0.00';
+  $('usdIn').textContent='$'+(isFinite(amt)?amt:0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  $('usdOut').textContent='$'+f2(out);
+  const eff=inRaw>0n?Number(out)/Number(inRaw):1;
+  $('rateText').textContent=`1 ${ti.sym} = ${(inRaw>0n?eff:1).toFixed(4)} ${to.sym}`;
+  const pi=inRaw>0n?Math.max(0,(1-eff)*100):0;
+  const iv=$('impactVal'); iv.textContent=out>0n?`${pi.toFixed(3)}%`:'—'; iv.className='v tnum '+(pi<0.5?'impact-ok':'impact-bad');
+  $('slipVal').textContent=slippage+'%';
+  $('minVal').textContent=out>0n?`${fmtD(out*BigInt(Math.round((1-slippage/100)*10000))/10000n)} ${to.sym}`:'—';
+  $('balIn').textContent='Bal '+(balances[tokenIn]!==undefined?fmtD(balances[tokenIn]):'0.00');
+  $('balOut').textContent='Bal '+(balances[tokenOut]!==undefined?fmtD(balances[tokenOut]):'0.00');
+  // CTA
+  const cta=$('cta');
+  if(!account){ cta.textContent='Connect Wallet'; cta.disabled=false; }
+  else if(!(amt>0)){ cta.textContent='Enter an amount'; cta.disabled=true; }
+  else { cta.textContent=`Swap ${ti.sym} for ${to.sym}`; cta.disabled=false; }
+  drawMarker(inRaw);
+  if(maxSize>0n) $('sizeSlider').value=Math.min(100,Math.max(0,Number(inRaw)/Number(maxSize)*100));
+}
+
+async function refresh(){ try{ [r0,r1]=await poolReserves(); buildCurve(); if(account){ balances[tokenIn]=await trc20(TOKENS[tokenIn].addr,account); balances[tokenOut]=await trc20(TOKENS[tokenOut].addr,account); } render(); }catch(e){ console.error(e); } }
+
+// --- price-impact curve (StableSwap depth) ---
+const CW=560,CH=210,PADL=42,PADR=14,PADT=14,PADB=30;
+let maxSize=0n;
+const inReserveRaw=()=> tokenIn==='wUNIT'?r0:r1;
+function piAt(sizeRaw){ if(sizeRaw<=0n)return 0; const o=quoteRaw(sizeRaw,idxOf(tokenIn),r0,r1); const e=Number(o)/Number(sizeRaw); return Math.max(0,(1-e)*100); }
+function buildCurve(){ const ns=$('chart'); if(!ns)return; maxSize=inReserveRaw(); if(maxSize<=0n){ns.innerHTML='';return;}
+  const N=60,pts=[]; for(let i=0;i<=N;i++){ const f=i/N; pts.push([f,piAt(BigInt(Math.round(Number(maxSize)*f)))]); }
+  const maxY=Math.max(1,...pts.map(p=>p[1]));
+  const X=f=>PADL+f*(CW-PADL-PADR), Y=v=>CH-PADB-(v/maxY)*(CH-PADT-PADB);
+  const path=pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');
+  let g=''; for(let k=0;k<=4;k++){ const v=maxY*k/4,y=Y(v); g+=`<line x1="${PADL}" y1="${y}" x2="${CW-PADR}" y2="${y}" stroke="#28272C"/><text x="6" y="${y+3}" fill="#5E5D62" font-size="10">${v.toFixed(1)}%</text>`; }
+  for(let k=0;k<=4;k++){ const f=k/4,x=X(f); g+=`<text x="${x}" y="${CH-9}" fill="#5E5D62" font-size="10" text-anchor="middle">${(f*100)|0}%</text>`; }
+  ns.innerHTML=`${g}<path d="${path} L ${X(1)} ${CH-PADB} L ${PADL} ${CH-PADB} Z" fill="#1858E4" opacity="0.08"/><path d="${path}" fill="none" stroke="#1858E4" stroke-width="2.5"/><line id="mkx" stroke="#47464A" stroke-dasharray="3 3"/><circle id="mk" r="5" fill="#5B8DEF" stroke="#fff" stroke-width="1.5"/>`;
+  window._cv={X,Y}; }
+function drawMarker(inRaw){ if(!window._cv||maxSize<=0n)return; const {X,Y}=window._cv; const f=Math.min(1,Number(inRaw)/Number(maxSize)); const pi=piAt(BigInt(Math.round(Number(maxSize)*f))); const mk=$('mk'),mkx=$('mkx'); if(!mk)return; mk.setAttribute('cx',X(f)); mk.setAttribute('cy',Y(pi)); mkx.setAttribute('x1',X(f)); mkx.setAttribute('x2',X(f)); mkx.setAttribute('y1',Y(pi)); mkx.setAttribute('y2',CH-PADB); $('curveLbl').textContent=`${(f*100).toFixed(1)}% of pool · ${pi.toFixed(2)}% impact`; }
+$('sizeSlider').addEventListener('input',e=>{ if(maxSize<=0n)return; const f=e.target.value/100; $('payInput').value=(Number(maxSize)*f/1e6).toFixed(2); render(); });
+
+// --- events ---
+$('payInput').addEventListener('input',e=>{ e.target.value=e.target.value.replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1'); render(); });
+$('payInput').addEventListener('focus',e=>{ e.target.value=e.target.value.replace(/,/g,''); });
+$('payInput').addEventListener('blur',e=>{ const v=parseFloat(e.target.value.replace(/,/g,'')); if(isFinite(v)&&e.target.value!==''){ e.target.value=v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); render(); } });
+$('maxBtn').onclick=()=>{ if(balances[tokenIn]!==undefined){ $('payInput').value=fmtD(balances[tokenIn]); render(); } };
+$('flip').onclick=()=>{ const prev=$('receiveOut').textContent; [tokenIn,tokenOut]=[tokenOut,tokenIn]; flipDeg+=180; $('flip').style.transform=`rotate(${flipDeg}deg)`; applyTokens(); if(prev&&prev!=='0.00')$('payInput').value=prev; render(); refresh(); };
+$('rateRow').onclick=()=>{ detailsOpen=!detailsOpen; $('details').style.display=detailsOpen?'flex':'none'; $('detChev').style.transform=detailsOpen?'rotate(180deg)':''; };
+$('settingsBtn').onclick=()=>{ const p=$('settingsPop'); p.style.display=p.style.display==='none'?'block':'none'; };
+$('refreshBtn').onclick=()=>{ $('refreshBtn').style.transition='transform .6s'; $('refreshBtn').style.transform='rotate(360deg)'; setTimeout(()=>{$('refreshBtn').style.transition='none';$('refreshBtn').style.transform='';},620); refresh(); };
+document.querySelectorAll('#slipSeg button').forEach(b=>b.onclick=()=>{ slippage=parseFloat(b.dataset.v); document.querySelectorAll('#slipSeg button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); $('settingsPop').style.display='none'; render(); });
+
+// token modal
+let modalSide='in';
+function openModal(side){ modalSide=side; $('search').value=''; buildModal(''); $('modal').classList.add('open'); }
+function pickToken(sym){ if(modalSide==='in'){ if(sym===tokenOut){[tokenIn,tokenOut]=[sym,tokenIn];}else tokenIn=sym; } else { if(sym===tokenIn){[tokenOut,tokenIn]=[sym,tokenOut];}else tokenOut=sym; } $('modal').classList.remove('open'); applyTokens(); render(); refresh(); }
+function buildModal(q){ const list=Object.values(TOKENS).filter(t=>!q||t.sym.toLowerCase().includes(q)||t.name.toLowerCase().includes(q));
+  $('chips').innerHTML=Object.values(TOKENS).map(t=>`<div class="chip" data-s="${t.sym}"><span class="tokicon" style="width:18px;height:18px;font-size:10px;background:${t.color}">${t.letter}</span>${t.sym}</div>`).join('');
+  $('mlist').innerHTML=list.map(t=>`<div class="mrow" data-s="${t.sym}"><div class="ml"><span class="tokicon" style="background:${t.color}">${t.letter}</span><div><div style="font-weight:700">${t.sym}</div><div class="nm">${t.name}</div></div></div><div style="text-align:right"><div class="tnum">${balances[t.sym]!==undefined?fmtD(balances[t.sym]):'—'}</div></div></div>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>pickToken(c.dataset.s));
+  $('mlist').querySelectorAll('.mrow').forEach(r=>r.onclick=()=>pickToken(r.dataset.s)); }
+$('pillIn').onclick=()=>openModal('in'); $('pillOut').onclick=()=>openModal('out');
+$('modalClose').onclick=()=>$('modal').classList.remove('open');
+$('modal').onclick=e=>{ if(e.target.id==='modal')$('modal').classList.remove('open'); };
+$('search').addEventListener('input',e=>buildModal(e.target.value.toLowerCase()));
+
+// connect
+$('connect').onclick=async()=>{ try{
+  if(!window.tronLink&&!window.tronWeb){ alert('Install the TronLink extension, unlock it, and switch to Nile testnet.'); return; }
+  if(window.tronLink&&window.tronLink.request) await window.tronLink.request({method:'tron_requestAccounts'});
+  await new Promise(r=>setTimeout(r,300)); tron=window.tronWeb;
+  const a=tron&&tron.defaultAddress&&tron.defaultAddress.base58;
+  if(!a){ $('connect').textContent='Unlock TronLink'; return; }
+  if(!onNile(tron)){ $('connect').textContent='Switch to Nile'; return; }
+  account=a; $('connect').textContent=a.slice(0,6)+'…'+a.slice(-4); refresh();
+}catch(e){ alert('Connect failed: '+(e.message||e)); } };
+
+// swap (CTA) with staged, persistent feedback
+const setCta=(t,d)=>{ const c=$('cta'); c.textContent=t; c.disabled=d; };
+function status(kind,html){ const s=$('swapStatus'); s.className='swapstatus'+(kind?' '+kind:''); s.innerHTML=html; s.style.display='block'; const b=$('statusDone'); if(b)b.onclick=()=>{ $('swapStatus').style.display='none'; }; }
+function stepCard(step,label){ const bars=[1,2,3,4].map(i=>`<div class="s ${i<step?'done':i===step?'on':''}"></div>`).join(''); return `<div class="head"><span class="spinner"></span>${label}</div><div class="sub">Step ${step} of 4 · keep this tab open until it finishes</div><div class="steps4">${bars}</div>`; }
+async function confirmTx(txid){ for(let i=0;i<30;i++){ await new Promise(r=>setTimeout(r,2500)); let info; try{ info=await (await fetch(FULLHOST+'/wallet/gettransactioninfobyid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:txid})})).json(); }catch{ continue; } if(info&&info.id){ const res=(info.receipt&&info.receipt.result)||'SUCCESS'; if(res!=='SUCCESS') throw new Error('Transaction reverted ('+res+') on-chain.'); return; } } throw new Error('Timed out waiting for confirmation.'); }
+$('cta').onclick=async()=>{
+  if(!account||!tron){ $('connect').click(); return; }
+  if(!onNile(tron)){ alert('Switch TronLink to Nile testnet.'); return; }
+  const amt=parseFloat(($('payInput').value||'0').replace(/,/g,'')); if(!(amt>0))return;
+  const ti=TOKENS[tokenIn], to=TOKENS[tokenOut];
+  const tin=idxOf(tokenIn); const inRaw=BigInt(Math.round(amt*1e6)); const out=quoteRaw(inRaw,tin,r0,r1); const minOut=out*BigInt(Math.round((1-slippage/100)*10000))/10000n;
+  const ctaLabel=`Swap ${ti.sym} for ${to.sym}`;
+  try{
+    setCta('Approve in your wallet…',true); status('',stepCard(1,`Confirm the ${ti.sym} approval in TronLink`));
+    const tk=tron.contract(ERC20_ABI,ti.addr);
+    const aTx=await tk.approve(POOL,inRaw.toString()).send({feeLimit:200_000_000});
+    setCta('Approving…',true); status('',stepCard(2,`Approving ${ti.sym} on-chain…`));
+    await confirmTx(aTx);
+    setCta('Confirm swap in your wallet…',true); status('',stepCard(3,'Confirm the swap in TronLink'));
+    const before=await trc20(to.addr,account).catch(()=>0n);
+    const pl=tron.contract(POOL_ABI,POOL);
+    const sTx=await pl.swap(tin,inRaw.toString(),minOut.toString(),account).send({feeLimit:1_000_000_000});
+    setCta('Swapping…',true); status('',stepCard(4,'Completing the swap on-chain…'));
+    await confirmTx(sTx);
+    const after=await trc20(to.addr,account).catch(()=>before);
+    const got=after>before?after-before:out;
+    status('ok',`<div class="head" style="color:var(--green)">✓ Swap complete</div><div class="sub">You received <b style="color:var(--txt)">${fmtD(got)} ${to.sym}</b>. It will appear in your wallet shortly.</div><div style="margin-top:9px"><a target="_blank" href="${EXPLORER}/transaction/${sTx}">View transaction on Tronscan ↗</a></div><button class="statusbtn" id="statusDone">Done</button>`);
+    setCta(ctaLabel,false); refresh();
+  }catch(e){
+    const msg=(e&&e.message)||String(e);
+    const friendly=/rejec|denied|cancel|declin/i.test(msg)?'You cancelled the transaction in your wallet.':msg;
+    status('err',`<div class="head" style="color:var(--red)">Swap not completed</div><div class="sub">${friendly}</div><button class="statusbtn" id="statusDone">Dismiss</button>`);
+    setCta(ctaLabel,false);
+  }
+};
+
+applyTokens(); render(); refresh(); setInterval(refresh,20000);
+</script>
+</body>
+</html>

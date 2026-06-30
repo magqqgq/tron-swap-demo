@@ -1,0 +1,8 @@
+{
+  "network": "nile",
+  "wunit": "TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+  "usdt": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
+  "pool": "TBVs8gzjVdgJEeWDshixiMFwtpPNeDvLZu",
+  "amplification": 200,
+  "swapFeeBps": 4
+}

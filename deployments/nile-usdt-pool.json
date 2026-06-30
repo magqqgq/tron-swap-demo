@@ -1,0 +1,12 @@
+{
+  "network": "nile",
+  "wunit": "TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB",
+  "usdt": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
+  "pool": "TMAvD5r8oRpJzxuUnc7kTNwNVtrkqUXdMU",
+  "amplification": 200,
+  "swapFeeBps": 4,
+  "reserves": {
+    "wunit": "4500",
+    "usdt": "4500"
+  }
+}
