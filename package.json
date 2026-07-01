@@ -1,0 +1,15 @@
+{
+  "name": "tron-swap-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ducat × Tron wUNIT/USDT swap demo (Nile testnet)",
+  "scripts": {
+    "serve": "node swap-demo/serve.mjs",
+    "compile": "node scripts/compile.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "solc": "0.8.24",
+    "tronweb": "^6.0.0"
+  }
+}

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { TronWeb } = require('tronweb');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, '..');
 const ONE = 10n ** 6n;
 const USDT_MINT = 1_000_000n * ONE;
 const SEED_WUNIT = 500_000n * ONE;
