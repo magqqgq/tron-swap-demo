@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ducat Swap · wUNIT ⇄ USDT on Tron</title>
+<link rel="preload" href="fonts/cabinet-grotesk-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/cabinet-grotesk-500.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/cabinet-grotesk-400.woff2" as="font" type="font/woff2" crossorigin />
 <style>
   @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-700.woff2') format('woff2');font-weight:700;font-display:swap;}
   @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-500.woff2') format('woff2');font-weight:500;font-display:swap;}
@@ -221,7 +224,6 @@ async function poolReserves(){const res=await rpcConst(POOL,'getBalances()');ret
 async function trc20(token,owner){const res=await rpcConst(token,'balanceOf(address)',b58hex20(owner).padStart(64,'0'));return BigInt('0x'+(res||'0'));}
 async function allowanceOf(token,owner,spender){const res=await rpcConst(token,'allowance(address,address)',b58hex20(owner).padStart(64,'0')+b58hex20(spender).padStart(64,'0'));return BigInt('0x'+(res||'0'));}
 const fmtD=raw=>(Number(raw)/1e6).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); // grouped 2dp (balances / displays)
-const f2=raw=>{const v=Number(raw)/1e6;return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
 const $=id=>document.getElementById(id);
 
 // --- state ---
@@ -245,7 +247,7 @@ function render(){
   const out=quoteRaw(inRaw,tin,r0,r1);
   $('receiveOut').textContent=out>0n?fmtD(out):'0.00';
   $('usdIn').textContent='$'+(isFinite(amt)?amt:0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  $('usdOut').textContent='$'+f2(out);
+  $('usdOut').textContent='$'+fmtD(out);
   const eff=inRaw>0n?Number(out)/Number(inRaw):1;
   $('rateText').textContent=`1 ${ti.sym} = ${(inRaw>0n?eff:1).toFixed(4)} ${to.sym}`;
   const pi=inRaw>0n?Math.max(0,(1-eff)*100):0;
@@ -263,7 +265,15 @@ function render(){
   if(maxSize>0n) $('sizeSlider').value=Math.min(100,Math.max(0,Number(inRaw)/Number(maxSize)*100));
 }
 
-async function refresh(){ try{ [r0,r1]=await poolReserves(); buildCurve(); if(account){ balances[tokenIn]=await trc20(TOKENS[tokenIn].addr,account); balances[tokenOut]=await trc20(TOKENS[tokenOut].addr,account); } render(); }catch(e){ console.error(e); } }
+let refreshing=false,refreshQueued=false,curveKey='';
+async function refresh(){ if(refreshing){ refreshQueued=true; return; } refreshing=true; try{
+  const [res,bIn,bOut]=await Promise.all([ poolReserves(),
+    account?trc20(TOKENS[tokenIn].addr,account):null,
+    account?trc20(TOKENS[tokenOut].addr,account):null ]);
+  [r0,r1]=res; if(bIn!==null)balances[tokenIn]=bIn; if(bOut!==null)balances[tokenOut]=bOut;
+  const key=`${tokenIn}:${r0}:${r1}`; // curve geometry only depends on reserves + direction
+  if(key!==curveKey){ curveKey=key; buildCurve(); }
+  render(); }catch(e){ console.error(e); }finally{ refreshing=false; if(refreshQueued){ refreshQueued=false; refresh(); } } }
 
 // --- price-impact curve (StableSwap depth) ---
 const CW=560,CH=210,PADL=42,PADR=14,PADT=14,PADB=30;
@@ -365,7 +375,9 @@ $('cta').onclick=async()=>{
   }
 };
 
-applyTokens(); render(); refresh(); setInterval(refresh,20000);
+applyTokens(); render(); refresh();
+setInterval(()=>{ if(!document.hidden) refresh(); },20000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refresh(); });
 </script>
 </body>
 </html>

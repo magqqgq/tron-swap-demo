@@ -14,7 +14,11 @@ const server = createServer(async (req, res) => {
   if (p.includes('..')) { res.statusCode = 400; return res.end('bad'); }
   try {
     const buf = await readFile(join(ROOT, p));
-    res.setHeader('Content-Type', TYPES[extname(p)] || 'application/octet-stream');
+    const ext = extname(p);
+    res.setHeader('Content-Type', TYPES[ext] || 'application/octet-stream');
+    if (ext === '.woff2' || ext === '.png' || ext === '.jpg' || ext === '.svg') {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
     res.end(buf);
   } catch {
     res.statusCode = 404;
