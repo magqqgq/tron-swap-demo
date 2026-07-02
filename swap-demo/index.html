@@ -8,7 +8,7 @@
   @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-700.woff2') format('woff2');font-weight:700;font-display:swap;}
   @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-500.woff2') format('woff2');font-weight:500;font-display:swap;}
   @font-face{font-family:'Cabinet Grotesk';src:url('fonts/cabinet-grotesk-400.woff2') format('woff2');font-weight:400;font-display:swap;}
-  :root{--bg:#111015;--surface:#1D1C21;--line:#28272C;--line2:#47464A;--txt:#DDDDDD;--dim:#8E8D90;--faint:#5E5D62;--blue:#1858E4;--blueText:#5B8DEF;--red:#E06A5A;}
+  :root{--bg:#111015;--surface:#1D1C21;--line:#28272C;--line2:#47464A;--txt:#DDDDDD;--dim:#8E8D90;--faint:#5E5D62;--blue:#1858E4;--blueText:#5B8DEF;--red:#E06A5A;--green:#59AA8A;}
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--txt);font-family:'Cabinet Grotesk',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
   .tnum{font-variant-numeric:tabular-nums;}
@@ -219,7 +219,7 @@ function b58hex20(a){let n=0n;for(const c of a){const i=B58.indexOf(c);if(i<0)th
 async function rpcConst(contract,sel,param=''){const r=await fetch(FULLHOST+'/wallet/triggerconstantcontract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({owner_address:contract,contract_address:contract,function_selector:sel,parameter:param,visible:true})});const j=await r.json();return j.constant_result?.[0]||'';}
 async function poolReserves(){const res=await rpcConst(POOL,'getBalances()');return [BigInt('0x'+res.slice(0,64)),BigInt('0x'+res.slice(64,128))];}
 async function trc20(token,owner){const res=await rpcConst(token,'balanceOf(address)',b58hex20(owner).padStart(64,'0'));return BigInt('0x'+(res||'0'));}
-const f6=raw=>(Number(raw)/1e6).toFixed(2); // plain 2dp (amounts / input fills)
+async function allowanceOf(token,owner,spender){const res=await rpcConst(token,'allowance(address,address)',b58hex20(owner).padStart(64,'0')+b58hex20(spender).padStart(64,'0'));return BigInt('0x'+(res||'0'));}
 const fmtD=raw=>(Number(raw)/1e6).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); // grouped 2dp (balances / displays)
 const f2=raw=>{const v=Number(raw)/1e6;return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
 const $=id=>document.getElementById(id);
@@ -331,11 +331,22 @@ $('cta').onclick=async()=>{
   const tin=idxOf(tokenIn); const inRaw=BigInt(Math.round(amt*1e6)); const out=quoteRaw(inRaw,tin,r0,r1); const minOut=out*BigInt(Math.round((1-slippage/100)*10000))/10000n;
   const ctaLabel=`Swap ${ti.sym} for ${to.sym}`;
   try{
-    setCta('Approve in your wallet…',true); status('',stepCard(1,`Confirm the ${ti.sym} approval in TronLink`));
     const tk=tron.contract(ERC20_ABI,ti.addr);
-    const aTx=await tk.approve(POOL,inRaw.toString()).send({feeLimit:200_000_000});
-    setCta('Approving…',true); status('',stepCard(2,`Approving ${ti.sym} on-chain…`));
-    await confirmTx(aTx);
+    // USDT-style tokens revert approve() when an allowance is already set, so
+    // reuse a sufficient allowance, and reset a stale non-zero one to 0 first.
+    const allowance=await allowanceOf(ti.addr,account,POOL).catch(()=>0n);
+    if(allowance<inRaw){
+      if(allowance>0n){
+        setCta('Reset approval in your wallet…',true); status('',stepCard(1,`Confirm the ${ti.sym} approval reset in TronLink`));
+        const rTx=await tk.approve(POOL,'0').send({feeLimit:200_000_000});
+        setCta('Resetting approval…',true); status('',stepCard(2,`Clearing the old ${ti.sym} approval…`));
+        await confirmTx(rTx);
+      }
+      setCta('Approve in your wallet…',true); status('',stepCard(1,`Confirm the ${ti.sym} approval in TronLink`));
+      const aTx=await tk.approve(POOL,inRaw.toString()).send({feeLimit:200_000_000});
+      setCta('Approving…',true); status('',stepCard(2,`Approving ${ti.sym} on-chain…`));
+      await confirmTx(aTx);
+    }
     setCta('Confirm swap in your wallet…',true); status('',stepCard(3,'Confirm the swap in TronLink'));
     const before=await trc20(to.addr,account).catch(()=>0n);
     const pl=tron.contract(POOL_ABI,POOL);

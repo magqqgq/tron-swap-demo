@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const solc = require('solc');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'contracts', 'WUNIT.sol');
 
 function findImport(importPath) {

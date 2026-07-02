@@ -35,7 +35,7 @@ deployments/   Deployed contract addresses on Tron Nile.
 | USDT (real Nile test USDT) | `TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf` |
 
 - wUNIT on Tronscan: https://nile.tronscan.org/#/contract/TXBd6ceqs6Zm8n7ef1RBuZuVEyWtgrxxqB/code
-- Example swap tx: https://nile.tronscan.org/#/transaction/56206b317cf...  (any swap from the UI produces a Tronscan link)
+- Example swap tx (25 wUNIT → 24.98 USDT via the UI): https://nile.tronscan.org/#/transaction/97517172d251b8abf6db684947ccc26821d702a4e078a89ee33f167cc18789b0
 
 ---
 
@@ -50,7 +50,7 @@ node swap-demo/serve.mjs
 
 Connect TronLink (set the network to **Nile testnet**, with an account holding wUNIT and a little TRX), enter an amount, and Swap. The page reads live pool reserves, quotes the trade with the real StableSwap math, runs a real `approve` + `swap` on-chain, and shows staged progress until the swap confirms.
 
-The `scripts/` are the TronBox/TronWeb deploy scripts used to build the contracts above; they need a funded Nile deployer key in `.env` (see `.env.example`) and are included as a reference for how the contracts were deployed.
+The `scripts/` are the TronBox/TronWeb deploy scripts used to build the contracts above; they need `npm install` plus a funded Nile deployer key in `.env` (see `.env.example`). `compile.js` and `deploy.js` (wUNIT) run as-is from the repo root. `deploy-stack.js`, `deploy-ducat-pool.js`, and `tronbox.js` are **reference snapshots** of how the pools were deployed: they expect TronBox build artifacts under `build/tron/` (including `UnitBridgeRouter`, whose source lives in Ducat's `usdc-bridge` repo, not here), so they document the process rather than reproduce it verbatim.
 
 ---
 
