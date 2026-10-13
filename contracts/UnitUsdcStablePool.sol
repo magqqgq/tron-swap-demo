@@ -14,6 +14,10 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
     uint256 private constant N_COINS = 2;
     uint256 private constant MAX_ITERATIONS = 255;
     uint256 private constant MAX_SWAP_FEE_BPS = 100;
+    /// @dev Safety ceiling to prevent multiplication overflows in Newton-Raphson loops
+    uint256 public constant MAX_A = 10_000;
+    /// @dev Max single-swap input ceiling to guard amplification precision and prevent arithmetic exhaustion
+    uint256 public constant MAX_INPUT = 100_000_000 * 1e18;
 
     IERC20Metadata public immutable wunit;
     IERC20Metadata public immutable usdc;
@@ -42,37 +46,33 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
         uint256 initialA_,
         uint256 initialSwapFeeBps_
     ) ERC20("UNIT/USDC Stable LP", "uUSDC-LP") Ownable(owner_) {
-        require(initialA_ > 0, "A=0");
+        require(initialA_ > 0 && initialA_ <= MAX_A, "invalid A");
         require(initialSwapFeeBps_ <= MAX_SWAP_FEE_BPS, "fee too high");
 
         wunit = IERC20Metadata(wunit_);
         usdc = IERC20Metadata(usdc_);
+        
+        uint8 wunitDecimals = wunit.decimals();
+        uint8 usdcDecimals = usdc.decimals();
+        require(wunitDecimals <= 18 && usdcDecimals <= 18, "decimals > 18 unsupported");
+
         amplification = initialA_;
         swapFeeBps = initialSwapFeeBps_;
-        precisionMultipliers[0] = 10 ** (18 - wunit.decimals());
-        precisionMultipliers[1] = 10 ** (18 - usdc.decimals());
+        precisionMultipliers[0] = 10 ** (18 - wunitDecimals);
+        precisionMultipliers[1] = 10 ** (18 - usdcDecimals);
     }
 
     function token(uint8 index) public view returns (IERC20Metadata) {
-        if (index == 0) {
-            return wunit;
-        }
-        if (index == 1) {
-            return usdc;
-        }
+        if (index == 0) return wunit;
+        if (index == 1) return usdc;
         revert("bad token");
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
-    }
+    function pause() external onlyOwner { _pause(); }
+    function unpause() external onlyOwner { _unpause(); }
 
     function setAmplification(uint256 nextA) external onlyOwner {
-        require(nextA > 0, "A=0");
+        require(nextA > 0 && nextA <= MAX_A, "invalid A");
         uint256 previousA = amplification;
         amplification = nextA;
         emit AmplificationUpdated(previousA, nextA);
@@ -92,6 +92,7 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
 
     function quoteSwap(uint8 tokenIn, uint256 amountIn) public view returns (uint256 amountOut) {
         require(amountIn > 0, "amount=0");
+        require(amountIn <= MAX_INPUT, "amount > MAX_INPUT");
         require(tokenIn < 2, "bad token");
         uint8 tokenOut = tokenIn == 0 ? 1 : 0;
 
@@ -173,6 +174,7 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
     ) external whenNotPaused nonReentrant returns (uint256 amountOut) {
         require(receiver != address(0), "receiver=0");
         require(amountIn > 0, "amount=0");
+        require(amountIn <= MAX_INPUT, "amount > MAX_INPUT");
         require(tokenIn < 2, "bad token");
 
         uint8 tokenOut = tokenIn == 0 ? 1 : 0;
@@ -226,9 +228,7 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
 
     function _getD(uint256[2] memory xp) internal view returns (uint256 d) {
         uint256 sum = xp[0] + xp[1];
-        if (sum == 0) {
-            return 0;
-        }
+        if (sum == 0) return 0;
 
         d = sum;
         uint256 ann = amplification * N_COINS;
@@ -241,9 +241,7 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
             uint256 previousD = d;
             d = ((ann * sum + dP * N_COINS) * d) / (((ann - 1) * d) + ((N_COINS + 1) * dP));
 
-            if (_withinOne(previousD, d)) {
-                return d;
-            }
+            if (_withinOne(previousD, d)) return d;
         }
 
         revert("D no converge");
@@ -283,18 +281,14 @@ contract UnitUsdcStablePool is ERC20, Ownable, Pausable, ReentrancyGuard {
         for (uint256 i = 0; i < MAX_ITERATIONS; i++) {
             uint256 previousY = y;
             y = ((y * y) + c) / ((2 * y) + b - d);
-            if (_withinOne(previousY, y)) {
-                return y;
-            }
+            if (_withinOne(previousY, y)) return y;
         }
 
         revert("Y no converge");
     }
 
     function _withinOne(uint256 a, uint256 b) internal pure returns (bool) {
-        if (a > b) {
-            return a - b <= 1;
-        }
+        if (a > b) return a - b <= 1;
         return b - a <= 1;
     }
 }

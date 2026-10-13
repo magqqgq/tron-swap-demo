@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: MIT
-// Demo variant of UnitUsdcStablePool that supports non-standard ERC-20s (real
-// USDT / Tether-style tokens whose transfer() does not return a clean bool).
-// Identical StableSwap math; the only change is the OUTBOUND transfer, which is
-// verified by balance delta instead of trusting the return value (the pattern
-// Curve/Uniswap use to support USDT). Inbound transfers keep SafeERC20.
 pragma solidity 0.8.24;
 
 import {IERC20Metadata} from "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
@@ -19,6 +14,10 @@ contract DucatStableSwap is ERC20, Ownable, Pausable, ReentrancyGuard {
     uint256 private constant N_COINS = 2;
     uint256 private constant MAX_ITERATIONS = 255;
     uint256 private constant MAX_SWAP_FEE_BPS = 100;
+    /// @dev Safety ceiling to prevent multiplication overflows in Newton-Raphson loops
+    uint256 public constant MAX_A = 10_000;
+    /// @dev Max single-swap input ceiling
+    uint256 public constant MAX_INPUT = 100_000_000 * 1e18;
 
     IERC20Metadata public immutable wunit;
     IERC20Metadata public immutable usdc;
@@ -30,18 +29,25 @@ contract DucatStableSwap is ERC20, Ownable, Pausable, ReentrancyGuard {
     event TokenExchange(address indexed caller, uint8 indexed tokenIn, uint256 amountIn, uint8 indexed tokenOut, uint256 amountOut, address receiver);
     event LiquidityAdded(address indexed provider, uint256 wunitAmount, uint256 usdcAmount, uint256 lpMinted);
     event LiquidityRemoved(address indexed provider, uint256 wunitAmount, uint256 usdcAmount, uint256 lpBurned);
+    event AmplificationUpdated(uint256 previousA, uint256 nextA);
+    event SwapFeeUpdated(uint256 previousFeeBps, uint256 nextFeeBps);
 
     constructor(address owner_, address wunit_, address usdc_, uint256 initialA_, uint256 initialSwapFeeBps_)
         ERC20("UNIT/USDT Stable LP", "uUSDT-LP") Ownable(owner_)
     {
-        require(initialA_ > 0, "A=0");
+        require(initialA_ > 0 && initialA_ <= MAX_A, "invalid A");
         require(initialSwapFeeBps_ <= MAX_SWAP_FEE_BPS, "fee too high");
         wunit = IERC20Metadata(wunit_);
         usdc = IERC20Metadata(usdc_);
+        
+        uint8 wunitDecimals = wunit.decimals();
+        uint8 usdcDecimals = usdc.decimals();
+        require(wunitDecimals <= 18 && usdcDecimals <= 18, "decimals > 18 unsupported");
+
         amplification = initialA_;
         swapFeeBps = initialSwapFeeBps_;
-        precisionMultipliers[0] = 10 ** (18 - wunit.decimals());
-        precisionMultipliers[1] = 10 ** (18 - usdc.decimals());
+        precisionMultipliers[0] = 10 ** (18 - wunitDecimals);
+        precisionMultipliers[1] = 10 ** (18 - usdcDecimals);
     }
 
     // USDT-safe outbound transfer: ignore the (non-standard) return value, verify by balance delta.
@@ -62,6 +68,20 @@ contract DucatStableSwap is ERC20, Ownable, Pausable, ReentrancyGuard {
     function pause() external onlyOwner { _pause(); }
     function unpause() external onlyOwner { _unpause(); }
 
+    function setAmplification(uint256 nextA) external onlyOwner {
+        require(nextA > 0 && nextA <= MAX_A, "invalid A");
+        uint256 previousA = amplification;
+        amplification = nextA;
+        emit AmplificationUpdated(previousA, nextA);
+    }
+
+    function setSwapFeeBps(uint256 nextFeeBps) external onlyOwner {
+        require(nextFeeBps <= MAX_SWAP_FEE_BPS, "fee too high");
+        uint256 previousFeeBps = swapFeeBps;
+        swapFeeBps = nextFeeBps;
+        emit SwapFeeUpdated(previousFeeBps, nextFeeBps);
+    }
+
     function getBalances() public view returns (uint256[2] memory balances) {
         balances[0] = wunit.balanceOf(address(this));
         balances[1] = usdc.balanceOf(address(this));
@@ -69,6 +89,7 @@ contract DucatStableSwap is ERC20, Ownable, Pausable, ReentrancyGuard {
 
     function quoteSwap(uint8 tokenIn, uint256 amountIn) public view returns (uint256 amountOut) {
         require(amountIn > 0, "amount=0");
+        require(amountIn <= MAX_INPUT, "amount > MAX_INPUT");
         require(tokenIn < 2, "bad token");
         uint8 tokenOut = tokenIn == 0 ? 1 : 0;
         uint256[2] memory balances = getBalances();
@@ -121,6 +142,7 @@ contract DucatStableSwap is ERC20, Ownable, Pausable, ReentrancyGuard {
     {
         require(receiver != address(0), "receiver=0");
         require(amountIn > 0, "amount=0");
+        require(amountIn <= MAX_INPUT, "amount > MAX_INPUT");
         require(tokenIn < 2, "bad token");
         uint8 tokenOut = tokenIn == 0 ? 1 : 0;
         IERC20Metadata inToken = token(tokenIn);
